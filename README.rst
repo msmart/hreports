@@ -9,7 +9,7 @@ hreports
 .. image:: https://img.shields.io/travis/msmart/hreports.svg
         :target: https://travis-ci.org/msmart/hreports
 
-.. image:: https://readthedocs.org/projects/hreports/badge/?version=latest
+.. image:: https://readthedocs.org/projects/hreports/badge/?version=latest&v=0.1
         :target: https://hreports.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
