@@ -13,7 +13,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'PyYAML>=3.12'
+    'PyYAML>=3.12',
+    'Jinja2>=2.10'
 ]
 
 setup_requirements = [
