@@ -28,7 +28,15 @@ A simple wrapper to create and manage reports based on hledger queries.
 Features
 --------
 
-* TODO
+hreports saves shortcuts to hledger query to conveniently manage multiple queries with different settings and ledger files. In addition, hreports can save the query output to pdfs with jinja templates using Pandoc.
+
+* Generate invoices with a single command, e.g. ``hreports save invoice_client1``
+* Manage tax reports, e.g. ``hreports show tax_2017``
+
+Roadmap
+---------
+* Add documentation
+* Add tests
 
 Credits
 ---------
