@@ -10,18 +10,41 @@ import hreports
 from .config import Config
 
 
+def composed(*decs):
+    """Combine multiple decorators.
+    See https://stackoverflow.com/questions/5409450/
+    """
+
+    def deco(f):
+        for dec in reversed(decs):
+            f = dec(f)
+        return f
+    return deco
+
+common = composed(click.option('--query', '-q', required=False),
+                  click.option('--template', '-t', required=False),
+                  click.option('--filename', '-f', required=False),
+                  click.option('--desc', '-d', required=False),
+                  click.option('--variables', '-var', required=False,
+                               type=(str, str), multiple=True)
+                  )
+
+
 @click.group(invoke_without_command=True)
-@click.option('--ledger', '-l', required=False)
-@click.option('--query', '-q', required=False)
 @click.option('--config-file', '-c', is_flag=True)
 @click.option('--verbose', is_flag=True)
+@click.option('--query', '-q', required=False,
+              help='Execute TEXT query')
 @click.option('--report-config', '-r', required=False)
+@click.option('--ledger', '-l', required=False,
+              help='Use TEXT ledger')
 @click.version_option()
 @click.pass_context
 def main(context, config_file, ledger, verbose, query, report_config):
     """Console script for hreports."""
     config = Config()
     context.obj = config
+    click.echo(ledger)
     context.obj.ledger = ledger
 
     if verbose:
@@ -30,7 +53,7 @@ def main(context, config_file, ledger, verbose, query, report_config):
     if not context.invoked_subcommand and query:
         hreport = hreports.Hreport(config)
         click.echo("Running %s" % query)
-        click.echo(hreport.run_query(query))
+        click.echo(hreport.run(query=query))
     elif report_config:
         report_config = config.get_stored_reports().get(report_config)
         click.echo(yaml.dump(report_config, default_flow_style=False))
@@ -42,11 +65,7 @@ def main(context, config_file, ledger, verbose, query, report_config):
 
 @main.command()
 @click.argument('name')
-@click.option('--query', '-q', required=False)
-@click.option('--template', '-t', required=False)
-@click.option('--desc', '-d', required=False)
-@click.option('--variables', '-var', required=False,
-              type=(str, str), multiple=True)
+@common
 @click.pass_obj
 def create(config, name, variables, **meta):
     click.echo('Saving %s report' % name)
@@ -59,13 +78,7 @@ def create(config, name, variables, **meta):
 
 @main.command()
 @click.argument('name')
-@click.option('--query', '-q', required=False)
-@click.option('--template', '-t', required=False)
-@click.option('--filename', '-f', required=False)
-@click.option('--desc', '-d', required=False)
-@click.option('--ledger', '-l', required=False)
-@click.option('--variables', '-var', required=False,
-              type=(str, str), multiple=True)
+@common
 @click.pass_obj
 def update(config, name, variables, **meta):
     click.echo('Updating  %s report' % name)
@@ -85,24 +98,23 @@ def delete(config, name):
 
 @main.command()
 @click.argument('name', required=False)
-@click.option('--template', '-t', required=False)
-@click.option('--filename', '-f', required=False)
-@click.option('--query', '-q', required=False,
-              help="Appends additional parameters to report query")
+@common
 @click.pass_obj
-def show(config, name, query, template, **kwargs):
+def show(config, name, variables, **meta):
 
     if config.verbose:
         click.echo("Showing reports", nl=True)
 
-    if not name:
+    if not name or name not in config.get_stored_reports():
         config.echo_saved_reports()
     elif name:
-        report_config = config.get_stored_reports().get(name)
-        if query:
-            report_config['query'] += ' %s' % query
+        config.update_report(name, meta=meta, variables=variables,
+                             write=False)
         hreport = hreports.Hreport(config)
-        click.echo(hreport.render(name, template))
+        click.echo(hreport.render(name))
+
+        if config.verbose:
+            click.echo('Ran query "%s"' % config.cmd)
 
 
 @main.command()
@@ -141,10 +153,12 @@ def edit(config, template):
 
 @click.argument('name')
 @main.command()
+@common
 @click.option('--file-type', '-f', required=False,
               type=click.Choice(['md', 'pdf', 'html']))
 @click.pass_obj
-def save(config, name, **meta):
+def save(config, name, variables, **meta):
+    config.update_report(name, meta, variables)
     hreport = hreports.Hreport(config)
     output_file = hreport.save(name)
     click.echo('Saved %s' % output_file)
