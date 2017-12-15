@@ -21,9 +21,11 @@ def composed(*decs):
         return f
     return deco
 
+
 common = composed(click.option('--query', '-q', required=False),
                   click.option('--template', '-t', required=False),
                   click.option('--filename', '-f', required=False),
+                  click.option('--ledger', '-l', required=False),
                   click.option('--desc', '-d', required=False),
                   click.option('--variables', '-var', required=False,
                                type=(str, str), multiple=True)
