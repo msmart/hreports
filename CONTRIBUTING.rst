@@ -35,6 +35,12 @@ Implement Features
 Look through the GitHub issues for features. Anything tagged with "enhancement"
 and "help wanted" is open to whoever wants to implement it.
 
+* Add templates 
+* Add version control to config files (e.g. --backup feature)
+* Add git commit id of ledger file dir to global variables
+* Test if requirements (hledger and pandoc) are met before running queries
+* Improve error handling (e.g. template error, hledger query error, etc.)
+
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
