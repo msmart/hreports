@@ -46,17 +46,20 @@ class Config(object):
             self.data.get('reports')[target] = target_config
         self.write_config()
 
-    def update_report(self, name, meta=False, variables=False):
+    def update_report(self, name, meta=False, variables=False, write=True):
         if meta:
             self.store_report_data(name, meta)
         if variables:
             report_config = self.data.get('reports').get(name)
             section_dict = report_config.get('variables', {})
-            for key, value in variables:
-                section_dict[key] = value
-                self.store_report_data(name, {'variables': section_dict})
 
-        self.write_config()
+            # Click collects --variables data as a list tuples
+            for item in variables:
+                section_dict[item[0]] = item[1]
+            self.store_report_data(name, {'variables': section_dict})
+
+        if write:
+            self.write_config()
 
     def read_config(self):
         self.cfg_file = os.path.join(click.get_app_dir(APP_NAME),
@@ -97,10 +100,10 @@ class Config(object):
 
         for report, cfg in self.get_stored_reports().items():
 
-            if cfg.get('meta', None) and cfg.get('meta').get('desc', None):
+            if cfg.get('desc', None):
                 click.secho(report.ljust(report_name_length),
                             fg='green', nl=False)
-                click.secho(' -- %s' % cfg.get('meta').get('desc'),
+                click.secho(' -- %s' % cfg.get('desc'),
                             )
             else:
                 click.secho('%s' % report, fg='green')
