@@ -9,7 +9,8 @@ import datetime
 import tempfile
 from jinja2 import Environment, ChoiceLoader, \
     FileSystemLoader, PackageLoader, select_autoescape
-from .template_filters import datetimeformat, german_float
+from .template_filters import datetimeformat, german_float, \
+    last_day_of_month
 
 
 class Hreport(object):
@@ -31,6 +32,7 @@ class Hreport(object):
 
         self.env.filters['datetime'] = datetimeformat
         self.env.filters['german_float'] = german_float
+        self.env.filters['last_day_of_month'] = last_day_of_month
 
     def get_global_config(self):
         return self.config.data.get('global', None)
