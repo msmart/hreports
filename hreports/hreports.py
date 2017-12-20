@@ -9,6 +9,8 @@ import datetime
 import tempfile
 from jinja2 import Environment, ChoiceLoader, \
     FileSystemLoader, PackageLoader, select_autoescape
+from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
+    UndefinedError
 from .template_filters import datetimeformat, german_float, \
     last_day_of_month
 
@@ -62,15 +64,32 @@ class Hreport(object):
         if not ledger:
             ledger = self.get_global_config_value('ledger')
 
-        query = self.env.from_string(query)
-        query = query.render(self.get_context(name))
+        query = self.render_string(query, name)
 
         if ledger:
             cmd = 'hledger -f %s %s' % (ledger, query)
         else:
             cmd = 'hledger %s' % query
         self.config.cmd = cmd
-        return unicode(subprocess.check_output(cmd.split(' ')), 'utf-8')
+        try:
+            output = unicode(subprocess.check_output(cmd.split(' ')), 'utf-8')
+            self.config.returncode = 0
+        except subprocess.CalledProcessError as exception:
+            self.config.error = exception.output
+            self.config.returncode = exception.returncode
+            output = 'Query %s returned non-zero exit status' % cmd
+        return output
+
+    def render_string(self, string, name=False):
+        string_template = self.env.from_string(string)
+        try:
+            string = string_template.render(self.get_context(name))
+        except TemplateSyntaxError:
+            string = 'Encountered syntax error in %s' % string
+        except UndefinedError as exception:
+            string = 'Encountered variable UndefinedError: %s' % \
+                exception.message
+        return string
 
     def render_strings_in_dict(self, data_dict, context, section=False):
         if not data_dict:
@@ -126,10 +145,26 @@ class Hreport(object):
         if not template_name:
             return self.run(name)
 
-        template = self.env.get_template(template_name)
+        try:
+            template = self.env.get_template(template_name)
+        except TemplateNotFound:
+            result = 'Template %s Not Found' % template_name
+            return result
+        except TemplateSyntaxError:
+            result = 'Template syntax error in %s' % template_name
+            return result
+
         context = self.get_context(name)
         context['output'] = self.run(name).splitlines()
-        return template.render(context)
+
+        try:
+            result = template.render(context)
+        except TemplateSyntaxError:
+            result = 'Template raised error: "%s"' % template
+        except UndefinedError as exception:
+            result = 'Variable UndefinedError %s in template "%s"' % \
+                (exception.message, template_name)
+        return result
 
     def save(self, name):
         input_file = tempfile.NamedTemporaryFile(dir='.',
@@ -144,9 +179,7 @@ class Hreport(object):
         if not output_file:
             output_file = '%s.pdf' % name
 
-        output_file_template = self.env.from_string(output_file)
-        context = self.get_context(name)
-        output_file = output_file_template.render(context)
+        output_file = self.render_string(output_file, name)
 
         cmd = 'pandoc %s -t html5 -o %s' % (input_file.name,
                                             output_file)
