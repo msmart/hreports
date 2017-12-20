@@ -32,18 +32,31 @@ common = composed(click.option('--query', '-q', required=False),
                   )
 
 
-@click.group(invoke_without_command=True)
-@click.option('--config-file', '-c', is_flag=True)
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
+
+@click.group(invoke_without_command=True,
+             context_settings=CONTEXT_SETTINGS)
+@click.option('--config-file', '-c', required=False,
+              type=click.Path(exists=True),
+              help='Use config file')
+@click.option('--config-info', '-i', is_flag=True,
+              help='Show current config file')
 @click.option('--verbose', is_flag=True)
 @click.option('--query', '-q', required=False,
-              help='Execute TEXT query')
-@click.option('--report-config', '-r', required=False)
-@click.option('--ledger', '-l', required=False,
-              help='Use TEXT ledger')
+              metavar='QUERY',
+              help='Execute QUERY query')
+@click.option('--report-config', '-r', required=False,
+              metavar='REPORT',
+              help='Show configuration of REPORT')
+@click.option('--ledger', '-l', metavar='FILE', required=False,
+              type=click.Path(exists=True),
+              help='Use FILE ledger')
 @click.version_option()
 @click.pass_context
-def main(context, config_file, ledger, verbose, query, report_config):
-    """Console script for hreports."""
+def main(context, config_info, config_file, ledger, verbose,
+         query, report_config):
+    """Manage hledger queries."""
     config = Config()
     context.obj = config
     click.echo(ledger)
@@ -59,13 +72,13 @@ def main(context, config_file, ledger, verbose, query, report_config):
     elif report_config:
         report_config = config.get_stored_reports().get(report_config)
         click.echo(yaml.dump(report_config, default_flow_style=False))
-    elif config_file:
+    elif config_info:
         print(yaml.dump(config.data))
     elif not context.invoked_subcommand:
         config.echo_saved_reports()
 
 
-@main.command()
+@main.command(short_help='Create a report')
 @click.argument('name')
 @common
 @click.pass_obj
@@ -78,7 +91,7 @@ def create(config, name, variables, **meta):
     config.update_report(name, meta, variables)
 
 
-@main.command()
+@main.command(short_help='Update report configuration')
 @click.argument('name')
 @common
 @click.pass_obj
@@ -87,7 +100,7 @@ def update(config, name, variables, **meta):
     config.update_report(name, meta, variables)
 
 
-@main.command()
+@main.command(short_help='Delete report')
 @click.argument('name')
 @click.pass_obj
 def delete(config, name):
@@ -98,7 +111,7 @@ def delete(config, name):
         config.delete_report(name)
 
 
-@main.command()
+@main.command(short_help='Show report result')
 @click.argument('name', required=False)
 @common
 @click.pass_obj
@@ -119,7 +132,7 @@ def show(config, name, variables, **meta):
             click.echo('Ran query "%s"' % config.cmd)
 
 
-@main.command()
+@main.command(short_help='Copy report configuration')
 @click.argument('source')
 @click.argument('target')
 @click.pass_obj
@@ -136,7 +149,7 @@ def copy(config, source, target):
     config.copy_report(source, target)
 
 
-@main.command()
+@main.command(short_help='Edit configuration file or template')
 @click.option('--template', '-t', required=False)
 @click.pass_obj
 def edit(config, template):
@@ -154,7 +167,7 @@ def edit(config, template):
 
 
 @click.argument('name')
-@main.command()
+@main.command(short_help='Save report to pdf file')
 @common
 @click.option('--file-type', '-f', required=False,
               type=click.Choice(['md', 'pdf', 'html']))
