@@ -27,7 +27,7 @@ test_requirements = [
 
 setup(
     name='hreports',
-    version='0.1.3',
+    version='0.1.4',
     description="A simple wrapper to create and manage reports based on hledger queries.",
     long_description=readme + '\n\n' + history,
     author="Michael Martinides",
