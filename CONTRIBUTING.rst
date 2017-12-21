@@ -21,7 +21,7 @@ If you are reporting a bug, please include:
 
 * Your operating system name and version.
 * Any details about your local setup that might be helpful in troubleshooting.
-* Detailed steps to reproduce the bug.
+  * Detailed steps to reproduce the bug.
 
 Fix Bugs
 ~~~~~~~~
@@ -32,14 +32,19 @@ and "help wanted" is open to whoever wants to implement it.
 Implement Features
 ~~~~~~~~~~~~~~~~~~
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+Look through the GitHub issues for features. Anything tagged with
+"enhancement" and "help wanted" is open to whoever wants to implement it.
+
+Improvements:
 
 * Add templates 
 * Add version control to config files (e.g. --backup feature)
 * Add git commit id of ledger file dir to global variables
 * Test if requirements (hledger and pandoc) are met before running queries
 * Improve error handling (e.g. template error, hledger query error, etc.)
+  * Template Error
+  * Hledger Query Error
+  * YAML config file error
 
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
@@ -51,7 +56,8 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/msmart/hreports/issues.
+The best way to send feedback is to file an issue at
+https://github.com/msmart/hreports/issues.
 
 If you are proposing a feature:
 
@@ -70,7 +76,9 @@ Ready to contribute? Here's how to set up `hreports` for local development.
 
     $ git clone git@github.com:your_name_here/hreports.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Install your local copy into a virtualenv. Assuming you have
+   virtualenvwrapper installed, this is how you set up your fork for local
+   development::
 
     $ mkvirtualenv hreports
     $ cd hreports/
@@ -82,7 +90,8 @@ Ready to contribute? Here's how to set up `hreports` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass flake8 and the
+   tests, including testing other Python versions with tox::
 
     $ flake8 hreports tests
     $ python setup.py test or py.test
