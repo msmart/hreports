@@ -95,15 +95,16 @@ class Config(object):
             click.secho('No reports saved.', fg='red')
             return
         click.echo('Stored reports:')
-        report_name_length = max([len(name) for name in
-                                  self.get_stored_reports().keys()])
+        report_names = self.get_stored_reports().keys()
+        report_names.sort()
+        report_name_length = max([len(name) for name in report_names])
 
-        for report, cfg in self.get_stored_reports().items():
-
+        for report_name in report_names:
+            cfg = self.get_stored_reports().get(report_name)
             if cfg.get('desc', None):
-                click.secho(report.ljust(report_name_length),
+                click.secho(report_name.ljust(report_name_length),
                             fg='green', nl=False)
                 click.secho(' -- %s' % cfg.get('desc'),
                             )
             else:
-                click.secho('%s' % report, fg='green')
+                click.secho('%s' % report_name, fg='green')
