@@ -12,7 +12,7 @@ from jinja2 import Environment, ChoiceLoader, \
 from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
     UndefinedError
 from .template_filters import datetimeformat, german_float, \
-    last_day_of_month
+    last_day_of_month, substract_days
 
 
 class Hreport(object):
@@ -35,6 +35,7 @@ class Hreport(object):
         self.env.filters['datetime'] = datetimeformat
         self.env.filters['german_float'] = german_float
         self.env.filters['last_day_of_month'] = last_day_of_month
+        self.env.filters['substract_days'] = substract_days
 
     def get_global_config(self):
         return self.config.data.get('global', None)
