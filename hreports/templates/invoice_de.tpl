@@ -15,10 +15,10 @@ margin-bottom: 20mm
 {{ customer_street }}  
 {{ customer_zipcode_city }} 
 
-{{ city }}, {{ now|datetime("%d.%m.%Y") }}
+{{ city }}, {{ invoice_date or now|datetime("%d.%m.%Y") }}
 
 # Rechnung: {{ project }}
-## Rechnungsnummer: {{ now|datetime("%Y%m%d") }}  
+## Rechnungsnummer: {{ invoice_number or now|datetime("%Y%m%d") }}  
 ## Leistungszeitraum: Monat der Rechnungsstellung 
 
 
