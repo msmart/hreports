@@ -7,6 +7,7 @@ import io
 import subprocess
 import datetime
 import tempfile
+import shlex
 from jinja2 import Environment, ChoiceLoader, \
     FileSystemLoader, PackageLoader, select_autoescape
 from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
@@ -73,7 +74,8 @@ class Hreport(object):
             cmd = 'hledger %s' % query
         self.config.cmd = cmd
         try:
-            output = unicode(subprocess.check_output(cmd.split(' ')), 'utf-8')
+            cmd_list = shlex.split(cmd)
+            output = unicode(subprocess.check_output(cmd_list), 'utf-8')
             self.config.returncode = 0
         except subprocess.CalledProcessError as exception:
             self.config.error = exception.output
@@ -198,6 +200,7 @@ class Hreport(object):
             if os.path.exists(styling_default_path):
                 cmd = cmd + ' --css %s' % styling_default_path
         input_file.close()
-        unicode(subprocess.check_output(cmd.split(' ')), 'utf-8')
+        cmd_list = shlex.split(cmd)
+        unicode(subprocess.check_output(cmd_list), 'utf-8')
         os.unlink(input_file.name)
         return output_file
