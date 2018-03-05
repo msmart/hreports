@@ -7,7 +7,6 @@
 import unittest
 from click.testing import CliRunner
 
-from hreports import hreports
 from hreports import cli
 
 
