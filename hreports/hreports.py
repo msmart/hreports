@@ -38,6 +38,7 @@ class Hreport(object):
         self.env.filters['last_day_of_month'] = last_day_of_month
         self.env.filters['substract_days'] = substract_days
         self.env.filters['multiply_last_column'] = multiply_last_column
+        self.env.filters['add_percentage_column'] = add_percentage_column
 
     def get_global_config(self):
         return self.config.data.get('global', None)

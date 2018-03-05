@@ -98,3 +98,28 @@ def multiply_last_column(output, factor, title=None, keywords={}):
         output_with_extra_column.append(new_line)
 
     return output_with_extra_column
+
+
+def add_percentage_column(output):
+    extra_column = multiply_last_column(output, 1.0, "%", {})
+    floats = [i for i, f in enumerate(extra_column) if f != " "]
+    for index in floats[1:]:
+        extra_column[index] = float(extra_column[index].replace(',', ''))
+    total = extra_column[floats[-1]]
+
+    total_percentage = 0
+    for index in floats[1:-1]:
+        percentage = 100*(extra_column[index]/total)
+        total_percentage += percentage
+        extra_column[index] = '{:,.2f}'.format(percentage)
+    extra_column[floats[-1]] = '{:,.2f}'.format(total_percentage)
+
+    max_result_value = max([len(x) for x in extra_column])
+    output_with_extra_column = []
+    max_length = max([len(x) for x in output])
+    for line, column in zip(output, extra_column):
+        new_line = line + " "*(max_length-len(line)) + " " +\
+                   " "*(max_result_value-len(column)) + column
+        output_with_extra_column.append(new_line)
+
+    return output_with_extra_column
