@@ -57,6 +57,8 @@ def multiply_last_column(output, factor, title=None, keywords={}):
     factor, keywords = parse_multiply_last_column_input(factor, keywords)
 
     extra_column = []
+
+    # Split each line and find the last string that converts to a float
     for line in output:
         result = None
         columns = line.split(' ')
@@ -72,7 +74,7 @@ def multiply_last_column(output, factor, title=None, keywords={}):
             except:
                 value = cell
 
-        # Append space if not float was found in line
+        # Append space if no float was found in line
         if not result:
             extra_column.append(" ")
 
@@ -82,6 +84,11 @@ def multiply_last_column(output, factor, title=None, keywords={}):
         if floats:
             extra_column[floats[0]] = title
 
+        # Special case for the percentage filter
+        if title == "%":
+            return extra_column
+
+    # Append to existing output and align spacing
     max_result_value = max([len(x) for x in extra_column])
     output_with_extra_column = []
 
