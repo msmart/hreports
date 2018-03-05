@@ -13,7 +13,8 @@ from jinja2 import Environment, ChoiceLoader, \
 from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
     UndefinedError
 from .template_filters import datetimeformat, german_float, \
-    last_day_of_month, substract_days
+    last_day_of_month, substract_days, multiply_last_column, \
+    add_percentage_column
 
 
 class Hreport(object):
