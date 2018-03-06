@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+from jinja2.exceptions import FilterArgumentError
 
 
 def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
@@ -32,13 +33,13 @@ def parse_multiply_last_column_input(factor, keywords):
         try:
             for keyword in keywords:
                 factor_by_keyword[keyword[0]] = keyword[1]
-        except:
-            raise Exception
+        except TypeError:
+            raise FilterArgumentError
     else:
         try:
             factor = float(factor)
-        except:
-            raise Exception
+        except ValueError:
+            raise FilterArgumentError
     return factor, factor_by_keyword
 
 
@@ -72,7 +73,7 @@ def multiply_last_column(output, factor, title=None, keywords={}):
                 if result:
                     extra_column.append(result)
                     break
-            except:
+            except ValueError:
                 value = cell
 
         # Append space if no float was found in line
