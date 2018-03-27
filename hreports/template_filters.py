@@ -33,7 +33,7 @@ def parse_multiply_last_column_input(factor, keywords):
         try:
             for keyword in keywords:
                 factor_by_keyword[keyword[0]] = keyword[1]
-        except TypeError:
+        except IndexError:
             raise FilterArgumentError
     else:
         try:
