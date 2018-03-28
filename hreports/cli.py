@@ -163,7 +163,6 @@ def edit(config, template):
 
         if not os.path.exists(os.path.dirname(template_file)):
                 os.makedirs(os.path.dirname(template_file))
-        click.echo(yaml.dump(report_config, default_flow_style=False))
 
         click.edit(filename=template_file)
     else:
