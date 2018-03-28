@@ -90,8 +90,10 @@ class Hreport(object):
         string_template = self.env.from_string(string)
         try:
             string = string_template.render(self.get_context(name))
-        except TemplateSyntaxError:
-            string = 'Encountered syntax error in %s' % string
+        except TemplateSyntaxError as exception:
+            exception.translated = False
+            string = 'Template syntax error in %s: %s' % (string,
+                                                          exception)
         except UndefinedError as exception:
             string = 'Encountered variable UndefinedError: %s' % \
                 exception.message
@@ -156,8 +158,10 @@ class Hreport(object):
         except TemplateNotFound:
             result = 'Template %s Not Found' % template_name
             return result
-        except TemplateSyntaxError:
-            result = 'Template syntax error in %s' % template_name
+        except TemplateSyntaxError as exception:
+            exception.translated = False
+            result = 'Template syntax error in %s: %s' % (template_name,
+                                                          exception)
             return result
 
         context = self.get_context(name)
@@ -165,8 +169,10 @@ class Hreport(object):
 
         try:
             result = template.render(context)
-        except TemplateSyntaxError:
-            result = 'Template raised error: "%s"' % template
+        except TemplateSyntaxError as exception:
+            exception.translated = False
+            result = 'Template syntax error in %s: %s' % (template_name,
+                                                          exception)
         except UndefinedError as exception:
             result = 'Variable UndefinedError %s in template "%s"' % \
                 (exception.message, template_name)
