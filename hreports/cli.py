@@ -57,7 +57,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 def main(context, config_info, config_file, ledger, verbose,
          query, report_config):
     """Manage hledger queries."""
-    config = Config()
+    config = Config(config_file)
     context.obj = config
     click.echo(ledger)
     context.obj.ledger = ledger
@@ -70,8 +70,11 @@ def main(context, config_info, config_file, ledger, verbose,
         click.echo("Running %s" % query)
         click.echo(hreport.run(query=query))
     elif report_config:
-        report_config = config.get_stored_reports().get(report_config)
-        click.echo(yaml.dump(report_config, default_flow_style=False))
+        report_content = config.get_stored_reports().get(report_config)
+        if not report_content:
+            click.echo("%s contains no configuration" % report_config)
+        else:
+            click.echo(yaml.dump(report_content, default_flow_style=False))
     elif config_info:
         print(yaml.dump(config.data))
     elif not context.invoked_subcommand:
@@ -160,6 +163,7 @@ def edit(config, template):
 
         if not os.path.exists(os.path.dirname(template_file)):
                 os.makedirs(os.path.dirname(template_file))
+        click.echo(yaml.dump(report_config, default_flow_style=False))
 
         click.edit(filename=template_file)
     else:

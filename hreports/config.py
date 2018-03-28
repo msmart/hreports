@@ -13,9 +13,10 @@ APP_NAME = 'hreports'
 
 class Config(object):
 
-    def __init__(self):
+    def __init__(self, config_file=None):
         self.verbose = False
         self.data = {'global': {}, 'reports': {}}
+        self.cfg_file = config_file
         self.read_config()
 
     def get_stored_reports(self):
@@ -62,10 +63,15 @@ class Config(object):
             self.write_config()
 
     def read_config(self):
-        self.cfg_file = os.path.join(click.get_app_dir(APP_NAME),
-                                     'config.yaml')
+        if not self.cfg_file:
+            self.cfg_file = os.path.join(click.get_app_dir(APP_NAME),
+                                         'config.yaml')
         try:
             self.data = yaml.safe_load(open(self.cfg_file))
+
+            if not self.data:
+                self.data = {'global': {}, 'reports': {}}
+                self.write_config()
         except yaml.YAMLError as exc:
             click.echo(exc)
         except EnvironmentError:
@@ -79,6 +85,9 @@ class Config(object):
 
         config_dir = os.path.dirname(self.cfg_file)
 
+        if not config_dir:
+            config_dir = os.getcwd()
+
         if not os.path.exists(config_dir):
                 os.makedirs(config_dir)
 
@@ -87,6 +96,7 @@ class Config(object):
                            encoding='utf-8',
                            default_flow_style=False,
                            allow_unicode=True)
+
         if self.verbose:
             click.echo('Config file updated at %s.' % self.cfg_file)
 
