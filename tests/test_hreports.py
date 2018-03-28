@@ -3,50 +3,125 @@
 
 """Tests for `hreports` package."""
 
-
 import unittest
+import logging
 import tempfile
 from click.testing import CliRunner
+from click import UsageError
 
 from hreports import cli, hreports
+
+logger = logging.getLogger()
 
 
 class TestHreports(unittest.TestCase):
     """Tests for `hreports` package."""
 
+    @classmethod
     def setUp(self):
-        """Set up test fixtures, if any."""
+        self.config_file = tempfile.NamedTemporaryFile()
+        self.cfg_arg = ['-c', self.config_file.name]
+        self.runner = CliRunner()
 
+    @classmethod
     def tearDown(self):
-        """Tear down test fixtures, if any."""
+        self.config_file.close()
 
     def test_command_line_interface(self):
         """Test the CLI."""
-        runner = CliRunner()
-        result = runner.invoke(cli.main)
-        assert result.exit_code == 0
-        assert 'reports' in result.output
+        result = self.runner.invoke(cli.main, ['-c', 'aa'])
+        self.assertEqual(result.exit_code, 2)
+        self.assertIn('does not exist', result.output)
 
-        help_result = runner.invoke(cli.main, ['--help'])
+    def test_custom_empty_config(self):
+        result = self.runner.invoke(cli.main, self.cfg_arg)
+        self.assertIn('No reports saved', result.output)
+        self.assertEqual(result.exit_code, 0)
+
+    def test_show_help(self):
+        args = ['--help']
+        help_result = self.runner.invoke(cli.main, args)
         assert help_result.exit_code == 0
         assert 'Show this message and exit.' in help_result.output
 
-        show_result = runner.invoke(cli.main, ['show'])
-        self.assertEqual(show_result.exit_code, 0)
-        self.assertIn('reports', show_result.output)
+    def test_create_and_show_report(self):
+        args = ['--verbose', 'create', 'test_report']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertIn(self.config_file.name, result.output)
+        self.assertIn('test_report', result.output)
+        self.assertEqual(result.exit_code, 0)
 
-    def test_config(self):
-        runner = CliRunner()
-        config = tempfile.NamedTemporaryFile()
+        args = ['--verbose', '-r', 'test_report']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('test_report contains no configuration',
+                      result.output)
 
-        runner.invoke(cli.main, ['-c', config.name, 'create', 'test'])
-        result = runner.invoke(cli.main, ['-c', config.name,
-                                          '--verbose', '-r'])
-        self.assertIn(config.name, result.output)
+        args = ['--verbose', 'update', 'test_report', '-q "balance XY"']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('Updating  test_report',
+                      result.output)
+
+        args = ['--verbose', '-r', 'test_report']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('balance XY',
+                      result.output)
+
+    def test_create_and_copy_report(self):
+        args = ['--verbose', 'create', 'test_report2', '-q "reg ZX"']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertIn('test_report2', result.output)
+        self.assertEqual(result.exit_code, 0)
+
+        args = ['--verbose', 'copy', 'test_report2', 'copy_report']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+
+        args = ['--verbose', '-r', 'copy_report']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('reg ZX',
+                      result.output)
+
+        args = ['--verbose', 'copy', 'non_existent', 'copy_report']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 2)
+        self.assertIn('Error: Report', result.output)
+
+    def test_delete_report(self):
+        args = ['--verbose', 'create', 'test3', '-q "reg ZX"']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertIn('test3', result.output)
+
+        args = ['--verbose', 'delete', 'test3']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+
+        args = ['--verbose']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+        self.assertNotIn('test3', result.output)
+
+        args = ['--verbose', 'delete', 'test3']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 2)
+        self.assertIn('Report test3 does not exist', result.output)
+
+    def test_show_report(self):
+        args = ['--verbose', 'create', 'test3', '-q "bal"']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('test3', result.output)
+
+        args = ['--verbose', 'show', 'test3']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        self.assertEqual(result.exit_code, 0)
 
     def test_get_global_config(self):
         from hreports import config
-        test = config.Config()
+        test = config.Config(self.config_file.name)
         hreport = hreports.Hreport(test)
         config = hreport.get_global_config()
         self.assertIsInstance(config, dict)
