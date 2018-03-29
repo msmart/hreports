@@ -115,7 +115,9 @@ class TestHreports(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertIn('test3', result.output)
 
-        args = ['--verbose', 'show', 'test3']
+        ledger = tempfile.NamedTemporaryFile(mode='w')
+        ledger.write('2010/1/12 *\n    income  2\n    asset  ')
+        args = ['--verbose', 'show', 'test3', '-l', ledger.name]
         result = self.runner.invoke(cli.main, self.cfg_arg + args)
         self.assertEqual(result.exit_code, 0)
 
