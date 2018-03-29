@@ -6,7 +6,7 @@ import os
 import click
 import yaml
 
-import hreports
+from .hreports import Hreport
 from .config import Config
 
 
@@ -66,7 +66,7 @@ def main(context, config_info, config_file, ledger, verbose,
         config.verbose = True
         click.echo("Config file %s" % config.cfg_file)
     if not context.invoked_subcommand and query:
-        hreport = hreports.Hreport(config)
+        hreport = Hreport(config)
         click.echo("Running %s" % query)
         click.echo(hreport.run(query=query))
     elif report_config:
@@ -128,7 +128,7 @@ def show(config, name, variables, **meta):
     elif name:
         config.update_report(name, meta=meta, variables=variables,
                              write=False)
-        hreport = hreports.Hreport(config)
+        hreport = Hreport(config)
         click.echo(hreport.render(name))
 
         if config.verbose:
@@ -177,7 +177,7 @@ def edit(config, template):
 @click.pass_obj
 def save(config, name, variables, **meta):
     config.update_report(name, meta, variables)
-    hreport = hreports.Hreport(config)
+    hreport = Hreport(config)
     output_file = hreport.save(name)
     click.echo('Saved %s' % output_file)
 
