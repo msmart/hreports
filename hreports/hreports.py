@@ -7,7 +7,6 @@ import io
 import subprocess
 import datetime
 import tempfile
-import shlex
 from jinja2 import Environment, ChoiceLoader, \
     FileSystemLoader, PackageLoader, select_autoescape
 from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
@@ -15,6 +14,10 @@ from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
 from .template_filters import datetimeformat, german_float, \
     last_day_of_month, substract_days, multiply_last_column, \
     add_percentage_column
+
+
+from click.parser import split_arg_string
+from click.exceptions import UsageError
 
 
 class Hreport(object):
@@ -76,14 +79,19 @@ class Hreport(object):
         else:
             cmd = 'hledger %s' % query
         self.config.cmd = cmd
+
         try:
-            cmd_list = shlex.split(cmd)
-            output = unicode(subprocess.check_output(cmd_list), 'utf-8')
+            cmd_list = split_arg_string(cmd)
+            output = subprocess.check_output(cmd_list)
             self.config.returncode = 0
+
+        except OSError:
+            raise UsageError('Hledger was not found on your system')
+
         except subprocess.CalledProcessError as exception:
             self.config.error = exception.output
             self.config.returncode = exception.returncode
-            output = 'Query %s returned non-zero exit status' % cmd
+            raise UsageError('Query %s returned non-zero exit status' % cmd)
         return output
 
     def render_string(self, string, name=False):
@@ -209,7 +217,16 @@ class Hreport(object):
             if os.path.exists(styling_default_path):
                 cmd = cmd + ' --css %s' % styling_default_path
         input_file.close()
-        cmd_list = shlex.split(cmd)
-        unicode(subprocess.check_output(cmd_list), 'utf-8')
+        cmd_list = split_arg_string(cmd)
+
+        try:
+            subprocess.check_output(cmd_list)
+
+        except OSError:
+            UsageError('Pandoc was not found on your system')
+
+        except subprocess.CalledProcessError:
+            raise UsageError('Pandoc %s returned non-zero exit status' % cmd)
+
         os.unlink(input_file.name)
         return output_file
