@@ -106,7 +106,7 @@ class Config(object):
             return
         click.echo('Stored reports:')
         report_names = self.get_stored_reports().keys()
-        report_names.sort()
+        report_names = sorted(report_names)
         report_name_length = max([len(name) for name in report_names])
 
         for report_name in report_names:
