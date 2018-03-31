@@ -65,11 +65,18 @@ class Hreport(object):
         return self.config.data.get('global').get(key, None)
 
     def run(self, name=False, query=False, ledger=False):
-        if name:
+
+        if not query:
             query = self.get_report_config_value(name, 'query')
+
+        if not query:
+            return ''
+
+        if not ledger:
             ledger = self.get_report_config_value(name, 'ledger')
 
         if not ledger:
+            "Fallback to global configuration"
             ledger = self.get_global_config_value('ledger')
 
         query = self.render_string(query, name)
@@ -95,6 +102,8 @@ class Hreport(object):
         return output
 
     def render_string(self, string, name=False):
+        if not string:
+            return
         string_template = self.env.from_string(string)
         try:
             string = string_template.render(self.get_context(name))
@@ -189,15 +198,19 @@ class Hreport(object):
     def save(self, name):
         input_file = tempfile.NamedTemporaryFile(dir='.',
                                                  delete=False)
+
         input_file.close()
 
         with io.open(input_file.name, 'w',
                      encoding='utf-8') as input_file:
-            input_file.write(self.render(name))
+            input_file.write(self.render(name).decode('utf-8'))
+
         output_file = self.get_report_config_value(name, 'filename')
 
-        if not output_file:
+        if not output_file and name:
             output_file = '%s.pdf' % name
+        if not output_file:
+            output_file = 'default.pdf'
 
         output_file = self.render_string(output_file, name)
 

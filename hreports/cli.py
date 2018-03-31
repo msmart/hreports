@@ -123,9 +123,10 @@ def show(config, name, variables, **meta):
     if config.verbose:
         click.echo("Showing report", nl=True)
 
-    if not name or name not in config.get_stored_reports():
+    if not name and not any(meta.values()):
         config.echo_saved_reports()
-    elif name:
+        raise click.UsageError('Nothing to show')
+    elif name in config.get_stored_reports() or any(meta.values()):
         config.update_report(name, meta=meta, variables=variables,
                              write=False)
         hreport = Hreport(config)
@@ -133,6 +134,8 @@ def show(config, name, variables, **meta):
 
         if config.verbose:
             click.echo('Ran query "%s"' % config.cmd)
+    elif name not in config.get_stored_reports():
+        raise click.UsageError('Report does not exist')
 
 
 @main.command(short_help='Copy report configuration')
@@ -169,17 +172,21 @@ def edit(config, template):
         click.edit(filename=config.cfg_file)
 
 
-@click.argument('name')
+@click.argument('name', required=False)
 @main.command(short_help='Save report to pdf file')
 @common
-@click.option('--file-type', '-f', required=False,
-              type=click.Choice(['md', 'pdf', 'html']))
 @click.pass_obj
 def save(config, name, variables, **meta):
-    config.update_report(name, meta, variables)
-    hreport = Hreport(config)
-    output_file = hreport.save(name)
-    click.echo('Saved %s' % output_file)
+
+    if not name and not any(meta.values()):
+        raise click.UsageError('Nothing to save')
+    elif name in config.get_stored_reports() or any(meta.values()):
+        config.update_report(name, meta, variables, write=False)
+        hreport = Hreport(config)
+        output_file = hreport.save(name)
+        click.echo('Saved %s' % output_file)
+    elif name not in config.get_stored_reports():
+        raise click.UsageError('Report does not exist')
 
 
 if __name__ == "__main__":
