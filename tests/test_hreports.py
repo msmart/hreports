@@ -3,11 +3,11 @@
 
 """Tests for `hreports` package."""
 
+import os
 import unittest
 import logging
 import tempfile
 from click.testing import CliRunner
-from click import UsageError
 
 from hreports import cli, hreports
 
@@ -20,6 +20,7 @@ class TestHreports(unittest.TestCase):
     @classmethod
     def setUp(self):
         self.config_file = tempfile.NamedTemporaryFile()
+        self.config_file.flush()
         self.cfg_arg = ['-c', self.config_file.name]
         self.runner = CliRunner()
 
@@ -112,14 +113,41 @@ class TestHreports(unittest.TestCase):
     def test_show_report(self):
         args = ['--verbose', 'create', 'test3', '-q "bal"']
         result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        assert not result.exception
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('test3', result.output)
+        ledger = tempfile.NamedTemporaryFile(mode='w')
+        ledger.write('2010/1/12 *\n    income  243\n    asset   \n')
+        ledger.flush()
+        args = ['--verbose', 'show', 'test3', '-l', ledger.name]
+
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        assert not result.exception
+        self.assertIn('243', result.output)
+        self.assertEqual(result.exit_code, 0)
+        ledger.close()
+
+    def test_save_report(self):
+        args = ['--verbose', 'create', 'test3', '-q "bal"']
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        assert not result.exception
         self.assertEqual(result.exit_code, 0)
         self.assertIn('test3', result.output)
 
-        ledger = tempfile.NamedTemporaryFile(mode='w')
-        ledger.write('2010/1/12 *\n    income  2\n    asset  ')
+        ledger = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        ledger.write('2010/1/12 *\n    income  2\n    asset  \n')
         args = ['--verbose', 'show', 'test3', '-l', ledger.name]
         result = self.runner.invoke(cli.main, self.cfg_arg + args)
         self.assertEqual(result.exit_code, 0)
+
+        args = ['save', 'test3', '-l', ledger.name]
+        result = self.runner.invoke(cli.main, self.cfg_arg + args)
+        assert not result.exception
+        assert os.path.isfile('test3.pdf')
+        self.assertNotEqual(os.stat('test3.pdf').st_size, 0)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('test3', result.output)
 
     def test_get_global_config(self):
         from hreports import config
