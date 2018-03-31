@@ -121,7 +121,7 @@ def delete(config, name):
 def show(config, name, variables, **meta):
 
     if config.verbose:
-        click.echo("Showing reports", nl=True)
+        click.echo("Showing report", nl=True)
 
     if not name or name not in config.get_stored_reports():
         config.echo_saved_reports()
