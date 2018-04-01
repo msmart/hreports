@@ -9,7 +9,15 @@ deploy:
     secure: YxLbfmxLL1i6QtzIEiGZmdcaa9/yiMAef8jUwRfQe3TjrRha6QgAo4H9tW6lwUCmXOpfK5bESXv8adUPfKFeQSXUiuHfhSzXEyEoxgWsqTDzrvsWhBYCxiYAwKIA0Cy7EKtQ8ISfIs94d4dmuVqkPVkHQjKeggcBfNEbBUzNUiLEDP6oKyjm8vNDa/1S/Jr0sllRrbNOQwlBvtWA6MrBR8lsPFxmhdKDBdwRYFqkzkhb3Zs0+n3BAygtPxzewRguPkiT0ZmbmfGd+F38dRWF9+/k944yP2URUavA/R6UQIR1F4Dzaax4czaNWVgCc0iNcBEo9oWpQhPcTXRNbhiFT5okp4r325uLZ+hIqwRrdCfNq7+uZC7sTy5Q1YXc8euMATrMmIv9oslca7deaZ0AJedzDiH/q/bdudX4rB2rW3pcrJu81asjNW5gCqfJOv9aHB3qasMMBzc9IM6VUKIRMxDmcuYa3xyFXksco6bCyt38YP/capwEHuJCihKYc5mrDsHk9C4JXhhfMb9Hy3/5Ml6XZ2P8cJ71Cpn3YkSncOqQpPkEoV2W+Na9POpR2HrIjmUZ7cLCv7Iwhlih+TSv75HK01483Ozux3D5VdGGs4wWJegPIsZpdsLCRW4Z+AQh2pePay9W3J7reR8vcDx1mhSyCS3IPvzDrkN3OkjiFzg=
   provider: pypi
   user: msmart
-install: pip install -U tox-travis
+install: 
+  - pip install -U tox-travis
+before_script:
+  - wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
+  - tar vxf wkhtmltox-0.12.3_linux-generic-amd64.tar.xz 
+  - export PATH=$PATH:$PWD/wkhtmltox/bin/
+  - wget https://github.com/jgm/pandoc/releases/download/2.1.3/pandoc-2.1.3-linux.tar.gz
+  - tar vxf pandoc-2.1.3-linux.tar.gz
+  - export PATH=$PATH:$PWD/pandoc-2.1.3/bin/
 before_install: 
   - sudo apt-get -qq update
   - sudo apt-get install -y hledger
