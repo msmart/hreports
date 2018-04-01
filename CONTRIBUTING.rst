@@ -123,36 +123,34 @@ Before you submit a pull request, check that it meets these guidelines:
 Release Checklist
 -----------------
 - [ ] Update HISTORY.rst
-- [ ] Commit the changes: 
-```
-git add HISTORY.rst
-git commit -m "Changelog for upcoming release 0.1.1."
-```
-- [ ] Update version number (can also be minor or major)
-```
-bumpversion patch
-```
-- [ ] Install the package again for local development, but with the new version number:
-```
-python setup.py develop
-```
-- [ ] Run the tests:
-```
-tox
-```
-- [ ] Release on PyPI by uploading both sdist and wheel:
-```
-python setup.py sdist bdist_wheel
-twine upload dist/*
-```
+- [ ] Commit the changes::
 
-- [ ] Test that it pip installs:
-```
-mktmpenv
-pip install my_project
-<try out my_project>
-deactivate
-```
+    git add HISTORY.rst
+    git commit -m "Changelog for upcoming release 0.1.1."
+
+- [ ] Update version number (can also be minor or major)::
+
+    bumpversion patch
+
+- [ ] Install the package again for local development, but with the new version number::
+
+    python setup.py develop
+
+- [ ] Run the tests::
+
+    tox
+
+- [ ] Release on PyPI by uploading both sdist and wheel::
+
+    python setup.py sdist bdist_wheel
+    twine upload dist/*
+
+- [ ] Test that it pip installs::
+
+    mktmpenv
+    pip install my_project
+    <try out my_project>
+    deactivate
 
 - [ ] Push: `git push`
 - [ ] Push tags: `git push --tags`
@@ -163,6 +161,5 @@ Tips
 ----
 
 To run a subset of tests::
-
 
     $ python -m unittest tests.test_hreports
