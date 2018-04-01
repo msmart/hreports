@@ -236,7 +236,7 @@ class Hreport(object):
             subprocess.check_output(cmd_list)
 
         except OSError:
-            UsageError('Pandoc was not found on your system')
+            raise UsageError('Pandoc was not found on your system')
 
         except subprocess.CalledProcessError:
             raise UsageError('Pandoc %s returned non-zero exit status' % cmd)
