@@ -2,6 +2,11 @@
 History
 =======
 
+0.2.0 (2018-04-01)
+------------------
+* Adds tests
+* Improves exception handling
+
 0.1.5 (2018-03-05)
 ------------------
 * Adds template filter to create relative dates
