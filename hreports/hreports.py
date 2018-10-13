@@ -214,7 +214,7 @@ class Hreport(object):
 
         output_file = self.render_string(output_file, name)
 
-        cmd = 'pandoc %s -t html5 -o %s' % (input_file.name,
+        cmd = 'pandoc "%s" -t html5 -o "%s"' % (input_file.name,
                                             output_file)
 
         styling = self.get_report_config_value(name, 'styling')
