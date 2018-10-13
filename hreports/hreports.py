@@ -3,6 +3,7 @@
 """Main module."""
 
 import os
+from sys import stdout
 import io
 import subprocess
 import datetime
@@ -90,6 +91,7 @@ class Hreport(object):
         try:
             cmd_list = split_arg_string(cmd)
             output = subprocess.check_output(cmd_list)
+            output = output.decode(stdout.encoding)
             self.config.returncode = 0
 
         except OSError:
