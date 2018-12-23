@@ -3,6 +3,7 @@
 """Main module."""
 
 import os
+from sys import stdout
 import io
 import subprocess
 import datetime
@@ -90,6 +91,7 @@ class Hreport(object):
         try:
             cmd_list = split_arg_string(cmd)
             output = subprocess.check_output(cmd_list)
+            output = output.decode(stdout.encoding)
             self.config.returncode = 0
 
         except OSError:
@@ -203,7 +205,7 @@ class Hreport(object):
 
         with io.open(input_file.name, 'w',
                      encoding='utf-8') as input_file:
-            input_file.write(self.render(name).decode('utf-8'))
+            input_file.write(self.render(name))
 
         output_file = self.get_report_config_value(name, 'filename')
 
@@ -214,8 +216,8 @@ class Hreport(object):
 
         output_file = self.render_string(output_file, name)
 
-        cmd = 'pandoc %s -t html5 -o %s' % (input_file.name,
-                                            output_file)
+        cmd = 'pandoc "%s" -t html5 -o "%s"' % (input_file.name,
+                                                output_file)
 
         styling = self.get_report_config_value(name, 'styling')
         template_name = self.get_report_config_value(name,
