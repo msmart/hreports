@@ -1,11 +1,54 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import re
 from jinja2.exceptions import FilterArgumentError
 
 
 def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
     return value.strftime(format)
+
+
+def datetime_strptime(value, format='%Y/%m'):
+    return datetime.datetime.strptime(value, format)
+
+
+def round_output(value):
+    value = value.replace("     0 ", "0.00")
+    value = value.replace("EUR", "")
+    return re.sub(r'\d+\.\d+',
+                  lambda m: '{:,.0f}'.format(float(str(m.group(0)))),
+                  value)
+
+
+def format_table(table):
+    header = None
+    markdown_header = None
+    markdown_table = []
+    width = None
+    for line in table:
+        if header and not markdown_header:
+            assert width
+            header = line.split('++')
+            markdown_header = []
+            for index, char in enumerate(header[1]):
+                if index % width == 0:
+                    markdown_header.append(' ')
+                else:
+                    markdown_header.append('-')
+            markdown_table.append(header[0].replace('=', '-') +
+                                  ' ' + ''.join(markdown_header))
+
+        elif not header and "||" in line:
+            header = line.split('||')
+            cells = header[1].split()
+            width = len(header[1])/len(cells)
+            markdown_table.append(header[0] + ' ' + header[1])
+        elif header and markdown_header and '++' in line:
+            pass
+        else:
+            markdown_table.append(line.replace('||', '  '))
+    return markdown_table
 
 
 def german_float(value):

@@ -14,7 +14,8 @@ from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
     UndefinedError
 from .template_filters import datetimeformat, german_float, \
     last_day_of_month, substract_days, multiply_last_column, \
-    add_percentage_column
+    add_percentage_column, round_output, format_table, \
+    datetime_strptime
 
 
 from click.parser import split_arg_string
@@ -39,11 +40,14 @@ class Hreport(object):
                                )
 
         self.env.filters['datetime'] = datetimeformat
+        self.env.filters['datetime_strptime'] = datetime_strptime
         self.env.filters['german_float'] = german_float
         self.env.filters['last_day_of_month'] = last_day_of_month
         self.env.filters['substract_days'] = substract_days
         self.env.filters['multiply_last_column'] = multiply_last_column
         self.env.filters['add_percentage_column'] = add_percentage_column
+        self.env.filters['round_output'] = round_output
+        self.env.filters['format_table'] = format_table
 
     def get_global_config(self):
         return self.config.data.get('global', None)
