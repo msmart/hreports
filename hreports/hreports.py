@@ -205,7 +205,7 @@ class Hreport(object):
 
         with io.open(input_file.name, 'w',
                      encoding='utf-8') as input_file:
-            input_file.write(self.render(name).decode('utf-8'))
+            input_file.write(self.render(name))
 
         output_file = self.get_report_config_value(name, 'filename')
 
