@@ -29,7 +29,7 @@ Features
 --------
 
 hreports saves shortcuts to hledger queries to conveniently manage multiple
-queries with different settings and ledger files.In addition, hreports can save
+queries with different settings and ledger files. In addition, hreports can save
 the query output to pdfs with jinja templates using Pandoc.
 
 * Conveniently create and manage multiple heldger queries
@@ -43,7 +43,8 @@ the query output to pdfs with jinja templates using Pandoc.
 Quickstart
 ----------
 Ensure that hledger_ is installed. If you want to save generate pdf reports
-pandoc_ and a PDF engine such as wkhtml2pdf_ need to be installed as well.
+pandoc_ (>=1.16) and a PDF engine such as wkhtml2pdf_ need to be installed as well. Ensure to use the patched version wkthmltopdf to ensure 
+https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2037
 
 Use pip to install hreports::
 
