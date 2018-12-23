@@ -149,6 +149,10 @@ class Hreport(object):
         context = {}
 
         builtins = {'now': datetime.datetime.now()}
+
+        if name:
+            builtins.update({'report_name': name})
+
         context.update(builtins)
 
         global_config = self.get_global_config()
