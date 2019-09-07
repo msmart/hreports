@@ -62,3 +62,6 @@ target/
 .python-version
 
 .ropeproject
+
+# exclude local virtualenv file
+vhreports

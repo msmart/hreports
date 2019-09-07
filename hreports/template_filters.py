@@ -9,10 +9,6 @@ def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
     return value.strftime(format)
 
 
-def datetime_strptime(value, format='%Y/%m'):
-    return datetime.datetime.strptime(value, format)
-
-
 def round_output(value):
     value = value.replace("     0 ", "0.00")
     value = value.replace("EUR", "")

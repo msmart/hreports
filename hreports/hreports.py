@@ -3,7 +3,6 @@
 """Main module."""
 
 import os
-from sys import stdout
 import io
 import subprocess
 import datetime
@@ -14,8 +13,7 @@ from jinja2.exceptions import TemplateSyntaxError, TemplateNotFound, \
     UndefinedError
 from .template_filters import datetimeformat, german_float, \
     last_day_of_month, substract_days, multiply_last_column, \
-    add_percentage_column, round_output, format_table, \
-    datetime_strptime
+    add_percentage_column, round_output, format_table
 
 
 from click.parser import split_arg_string
@@ -40,7 +38,6 @@ class Hreport(object):
                                )
 
         self.env.filters['datetime'] = datetimeformat
-        self.env.filters['datetime_strptime'] = datetime_strptime
         self.env.filters['german_float'] = german_float
         self.env.filters['last_day_of_month'] = last_day_of_month
         self.env.filters['substract_days'] = substract_days
@@ -94,8 +91,9 @@ class Hreport(object):
 
         try:
             cmd_list = split_arg_string(cmd)
-            output = subprocess.check_output(cmd_list)
-            output = output.decode(stdout.encoding)
+
+            # subprocess returns a bytestring which needs to be decoded
+            output = subprocess.check_output(cmd_list).decode('utf-8')
             self.config.returncode = 0
 
         except OSError:
@@ -149,10 +147,6 @@ class Hreport(object):
         context = {}
 
         builtins = {'now': datetime.datetime.now()}
-
-        if name:
-            builtins.update({'report_name': name})
-
         context.update(builtins)
 
         global_config = self.get_global_config()
@@ -224,15 +218,18 @@ class Hreport(object):
 
         output_file = self.render_string(output_file, name)
 
-        cmd = 'pandoc "%s" -t html5 -o "%s"' % (input_file.name,
-                                                output_file)
+        cmd = 'pandoc %s -t html5 -o %s' % (input_file.name,
+                                            output_file)
 
         styling = self.get_report_config_value(name, 'styling')
         template_name = self.get_report_config_value(name,
                                                      'template')
+        #print self.get_report_config(name)
         if styling:
-            styling = os.path.join(self.cfg_templates, styling)
-            styling = '--css "%s"' % styling
+            #styling = os.path.join(self.cfg_templates, styling)
+            #print styling
+            styling = ' --css "%s"' % styling
+            cmd = cmd + styling
         elif template_name:
             styling_default = template_name.split('.')[0] + '.css'
             styling_default_path = os.path.join(self.cfg_templates,
@@ -241,6 +238,7 @@ class Hreport(object):
                 cmd = cmd + ' --css %s' % styling_default_path
         input_file.close()
         cmd_list = split_arg_string(cmd)
+        print(cmd_list)
 
         try:
             subprocess.check_output(cmd_list)

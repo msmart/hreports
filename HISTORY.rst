@@ -2,11 +2,6 @@
 History
 =======
 
-0.2.1 (2018-12-23)
-------------------
-* Adds string decoding to output subprocess call 
-* Updates dependencies and minor fixes
-
 0.2.0 (2018-04-01)
 ------------------
 * Adds tests

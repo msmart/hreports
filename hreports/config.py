@@ -61,7 +61,7 @@ class Config(object):
 
         if write:
             self.write_config()
-
+        #print "updating", self.get_stored_reports().get(name)
     def read_config(self):
         if not self.cfg_file:
             self.cfg_file = os.path.join(click.get_app_dir(APP_NAME),
