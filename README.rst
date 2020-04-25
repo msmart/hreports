@@ -154,6 +154,7 @@ Roadmap
 
 Credits
 ---------
+[ ~ Dependencies scanned by PyUp.io ~ ]
 
 This package was created with Cookiecutter_ and the
 `audreyr/cookiecutter-pypackage`_ project template.
