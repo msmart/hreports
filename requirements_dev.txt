@@ -8,4 +8,4 @@ coverage==6.3.2
 Sphinx==4.4.0
 cryptography==36.0.1
 twine==3.8.0
-PyYAML==5.3.1
+PyYAML==6.0
