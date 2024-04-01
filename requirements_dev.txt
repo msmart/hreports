@@ -7,5 +7,5 @@ tox==4.14.2
 coverage==7.4.4
 Sphinx==7.2.6
 cryptography==42.0.5
-twine==3.1.1
+twine==5.0.0
 PyYAML==5.3.1
